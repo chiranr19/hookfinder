@@ -1,5 +1,9 @@
 # hookfinder
 
+[![CI](https://github.com/chiranr19/hookfinder/actions/workflows/ci.yml/badge.svg)](https://github.com/chiranr19/hookfinder/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.9%E2%80%933.12-blue)](https://github.com/chiranr19/hookfinder)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 **Find the 30 seconds that hook you.** An explainable, dependency-light Python
 package that locates the most memorable segment of a song — the chorus, the
 hook, the part you'd use as a preview clip — and tells you *why* it picked it.
