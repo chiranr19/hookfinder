@@ -15,7 +15,7 @@ most reliable marker of "the part you remember" is that the song returns to it.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -136,7 +136,3 @@ def combine(normalized: dict, weights: Weights = DEFAULT_WEIGHTS) -> np.ndarray:
         contribution = w[name] * np.asarray(normalized[name], dtype=float)
         total = contribution if total is None else total + contribution
     return total
-
-
-def _weight_field_names():
-    return tuple(f.name for f in fields(Weights))

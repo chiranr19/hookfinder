@@ -35,6 +35,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Do not snap the clip start to a nearby beat.",
     )
     parser.add_argument(
+        "-q", "--quality", choices=["fast", "high"], default="fast",
+        help="'fast' (default) skips harmonic/percussive separation; "
+             "'high' is slower but uses cleaner per-signal sources.",
+    )
+    parser.add_argument(
         "--export", type=Path, metavar="OUT",
         help="Write the best clip to this audio file (extension sets the format).",
     )
@@ -59,10 +64,11 @@ def _weights_from_args(args) -> Weights:
 
 
 def _export_clip(audio_path: Path, out_path: Path, start: float, end: float) -> None:
-    import librosa
     import soundfile as sf
 
-    y, sr = librosa.load(str(audio_path), sr=None, mono=True)
+    from .features import load_audio
+
+    y, sr = load_audio(audio_path, sr=None)
     clip = y[int(start * sr):int(end * sr)]
     out_path.parent.mkdir(parents=True, exist_ok=True)
     sf.write(str(out_path), clip, sr)
@@ -80,6 +86,7 @@ def main(argv=None) -> int:
         step=args.step,
         weights=_weights_from_args(args),
         align_to_beat=not args.no_beat_align,
+        quality=args.quality,
     )
 
     try:
@@ -96,6 +103,7 @@ def main(argv=None) -> int:
         payload = {
             "file": str(args.audio),
             "clip_duration": args.duration,
+            "quality": args.quality,
             "hooks": [h.to_dict() for h in hooks],
         }
         if args.export:

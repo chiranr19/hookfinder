@@ -38,6 +38,13 @@ def song():
 
 
 @pytest.fixture(scope="session")
+def long_song():
+    """~12 minutes, built by tiling the synthetic song."""
+    y, sr = synth_song()
+    return np.tile(y, 12), sr
+
+
+@pytest.fixture(scope="session")
 def song_wav(tmp_path_factory, song):
     import soundfile as sf
 

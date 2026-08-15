@@ -11,6 +11,7 @@ import numpy as np
 from . import scoring
 from .features import (
     DEFAULT_HOP,
+    DEFAULT_QUALITY,
     DEFAULT_SR,
     AudioFeatures,
     extract_features,
@@ -75,6 +76,9 @@ class HookFinder:
     rms_percentile:
         Loudness percentile used as the "is this loud" threshold for the
         sustained-energy signal.
+    quality:
+        ``"fast"`` (default) or ``"high"``. See :mod:`hookfinder.features`.
+        Ignored when precomputed ``AudioFeatures`` are passed in.
     """
 
     def __init__(
@@ -85,6 +89,7 @@ class HookFinder:
         align_to_beat: bool = True,
         beat_tolerance: float = 1.0,
         rms_percentile: float = 75.0,
+        quality: str = DEFAULT_QUALITY,
         sr: int = DEFAULT_SR,
         hop_length: int = DEFAULT_HOP,
     ):
@@ -98,6 +103,7 @@ class HookFinder:
         self.align_to_beat = align_to_beat
         self.beat_tolerance = float(beat_tolerance)
         self.rms_percentile = float(rms_percentile)
+        self.quality = quality
         self.sr = sr
         self.hop_length = hop_length
 
@@ -112,7 +118,7 @@ class HookFinder:
     ) -> List[Hook]:
         """Return up to ``top_k`` non-overlapping candidate clips, best first."""
         feats = self._as_features(audio, sr)
-        return self._rank(feats, top_k=top_k)
+        return self._rank(feats, top_k=max(1, int(top_k)))
 
     # -- internals -----------------------------------------------------------
 
@@ -120,11 +126,15 @@ class HookFinder:
         if isinstance(audio, AudioFeatures):
             return audio
         if isinstance(audio, (str, Path)):
-            return extract_from_file(audio, sr=self.sr, hop_length=self.hop_length)
+            return extract_from_file(
+                audio, sr=self.sr, hop_length=self.hop_length, quality=self.quality
+            )
         if isinstance(audio, np.ndarray):
             if sr is None:
                 raise ValueError("sr is required when passing a raw waveform array.")
-            return extract_features(audio, sr=sr, hop_length=self.hop_length)
+            return extract_features(
+                audio, sr=sr, hop_length=self.hop_length, quality=self.quality
+            )
         raise TypeError(
             "audio must be a file path, a numpy waveform, or AudioFeatures; "
             f"got {type(audio).__name__}."
@@ -177,6 +187,9 @@ class HookFinder:
             normalized[name] = arr if name == "centrality" else scoring.min_max_normalize(arr)
 
         scores = scoring.combine(normalized, self.weights)
+        # Smooth across neighboring windows so the pick is a broad plateau
+        # rather than a one-window spike that a half-second shift would miss.
+        scores = _moving_average(scores, width=3)
         order = np.argsort(scores)[::-1]
 
         hooks = self._select(order, valid_starts, scores, normalized, feats, window, top_k)
@@ -215,6 +228,17 @@ class HookFinder:
         return False
 
 
+def _moving_average(values: np.ndarray, width: int = 3) -> np.ndarray:
+    """Centered moving average, edge-padded to preserve length."""
+    values = np.asarray(values, dtype=float)
+    if width <= 1 or values.size < width:
+        return values
+    pad = width // 2
+    padded = np.pad(values, pad, mode="edge")
+    kernel = np.ones(width) / width
+    return np.convolve(padded, kernel, mode="valid")[: values.size]
+
+
 def find_hook(
     audio: AudioInput,
     clip_duration: float = 30.0,
@@ -222,6 +246,7 @@ def find_hook(
     weights: Optional[Weights] = None,
     align_to_beat: bool = True,
     step: float = 1.0,
+    quality: str = DEFAULT_QUALITY,
 ) -> Hook:
     """Find the single best hook clip in a song.
 
@@ -234,6 +259,8 @@ def find_hook(
         Desired clip length in seconds (default 30).
     sr:
         Sample rate, required only when ``audio`` is a raw waveform array.
+    quality:
+        ``"fast"`` (default) or ``"high"`` — speed/accuracy tradeoff.
 
     Returns
     -------
@@ -251,5 +278,6 @@ def find_hook(
         step=step,
         weights=weights,
         align_to_beat=align_to_beat,
+        quality=quality,
     )
     return finder.find(audio, sr=sr)

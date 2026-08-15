@@ -14,7 +14,7 @@ from .detector import Hook, HookFinder, find_hook
 from .features import AudioFeatures, extract_features, extract_from_file, load_audio
 from .scoring import DEFAULT_WEIGHTS, SIGNALS, Weights
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "find_hook",

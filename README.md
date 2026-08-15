@@ -67,12 +67,36 @@ five signals, each normalized to `[0, 1]`:
 | **centrality** | structural position prior | hooks rarely live in the intro or outro |
 
 The signals are combined with configurable weights (repetition leads by
-default), the top window is chosen, and its start is snapped to a nearby beat
-for a clean cut. Because the score is a transparent weighted sum, every result
-carries the `components` that produced it — no black box.
+default), the score curve is smoothed so the pick is a broad plateau rather
+than a one-window spike, the top window is chosen, and its start is snapped to
+a nearby beat for a clean cut. Because the score is a transparent weighted sum,
+every result carries the `components` that produced it — no black box.
 
-The heavy lifting (HPSS, chroma, onset, beat tracking, the recurrence matrix)
-runs **once per song**; scanning candidates is cheap.
+Feature extraction runs **once per song**; scanning candidates is cheap.
+
+## Performance
+
+Two quality modes, set with `quality=` (or `--quality`):
+
+| Mode | Chroma | Rhythm source | Analysis time* |
+| --- | --- | --- | --- |
+| `fast` *(default)* | `chroma_stft` on the mix | onset strength on the mix | **~1.5 s** |
+| `high` | `chroma_cqt` on harmonic part | onset/beats on percussive part | ~19 s |
+
+<sub>*Excluding decode, on a 4.5-minute track. `high` runs harmonic/percussive
+separation (HPSS), which alone costs more than the entire `fast` pipeline.</sub>
+
+**Decode usually dominates total runtime**, not analysis — a 4.5-minute `.webm`
+took ~21 s to decode via librosa's `audioread` fallback versus ~1.5 s to
+analyze. Installing [ffmpeg](https://ffmpeg.org/) and/or working from `.wav`
+makes the biggest difference.
+
+On real songs the two modes tend to surface the **same set of candidate
+regions** but sometimes **rank them differently** — because songs often have
+several near-equally-hooky sections whose scores sit within a few percent of
+each other. When the top scores are that close, treat the pick as one
+reasonable answer among several and look at `find_candidates()` rather than
+assuming a single truth.
 
 ## Usage
 
@@ -124,27 +148,33 @@ long  = HookFinder(clip_duration=45).find(feats)
 hookfinder song.mp3                     # best hook + breakdown
 hookfinder song.mp3 --top 3             # top 3 non-overlapping candidates
 hookfinder song.mp3 -d 15 --json        # 15s clip, JSON output
+hookfinder song.mp3 --quality high      # slower, cleaner per-signal sources
 hookfinder song.mp3 --export teaser.wav # write the clip to disk
 hookfinder song.mp3 --w-repetition 0.6 --w-energy 0.4
 ```
 
 ## API
 
-- `find_hook(audio, clip_duration=30, sr=None, weights=None, align_to_beat=True, step=1.0) -> Hook`
+- `find_hook(audio, clip_duration=30, sr=None, weights=None, align_to_beat=True, step=1.0, quality="fast") -> Hook`
 - `HookFinder(...).find(audio) -> Hook`
 - `HookFinder(...).find_candidates(audio, top_k=5) -> list[Hook]`
 - `Hook`: `.start`, `.end`, `.duration`, `.score`, `.components`, `.to_dict()`
 - `Weights(repetition, harmonic, rhythmic, energy, centrality)` — auto-normalized
-- `extract_from_file(path) -> AudioFeatures` / `extract_features(y, sr) -> AudioFeatures`
+- `extract_from_file(path, quality="fast") -> AudioFeatures` / `extract_features(y, sr, quality="fast") -> AudioFeatures`
 
-`audio` may be a file path, a mono NumPy waveform (pass `sr`), or a precomputed
-`AudioFeatures`.
+`audio` may be a file path, a NumPy waveform (pass `sr`; stereo is downmixed,
+integer PCM is scaled), or a precomputed `AudioFeatures`. Empty audio, clips
+under ~3 seconds, and non-finite samples raise `ValueError`.
 
 ## Limitations
 
 - It's a **signal-based heuristic**, not a trained model. It finds the salient,
   repeated, high-energy section — which is usually the hook, but "catchiness"
   is subjective and it won't always agree with you.
+- **The top pick is often not a clear winner.** On real tracks the leading
+  candidates frequently score within a few percent of each other; the ranking
+  between them is not meaningful at that margin. Use `find_candidates()` when
+  that matters to you.
 - Instrumental or through-composed music (no repeating chorus) leans on the
   other four signals and is inherently harder.
 - Beat tracking and recurrence degrade on very short or very noisy audio.
