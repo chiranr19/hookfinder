@@ -14,6 +14,11 @@ Built on [librosa](https://librosa.org). No cloud services, no API keys, no
 model downloads. Point it at an audio file and it returns a start/end timestamp
 plus a per-signal breakdown.
 
+![hookfinder locating the 30-second hook on a synthetic verse/chorus track: the loudness curve shows two choruses; the detected 30s window lands over the first chorus, and the lower panel breaks down why — repetition 0.78, rhythmic 0.94, energy 1.00, centrality 1.00.](docs/hook_detection.png)
+
+*The audio above is synthetic (a generated verse/chorus signal); the detected
+window and the per-signal scores are hookfinder's real output on it.*
+
 ```python
 from hookfinder import find_hook
 
