@@ -1,3 +1,4 @@
+# ✦ @chiranr19 · © 2026 All Rights Reserved · proprietary · sigil:AQY3QG3XBBYYR2WN
 """hookfinder — find the 30 seconds that hook you.
 
 Explainable hook/chorus detection for building preview clips, built on librosa.

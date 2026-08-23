@@ -1,3 +1,4 @@
+# ✦ @chiranr19 · © 2026 All Rights Reserved · proprietary · sigil:AQY3QG3XBBYYR2WN
 """Degenerate and awkward inputs should fail cleanly or succeed sanely."""
 
 import numpy as np

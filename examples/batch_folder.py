@@ -1,3 +1,4 @@
+# ✦ @chiranr19 · © 2026 All Rights Reserved · proprietary · sigil:AQY3QG3XBBYYR2WN
 """Find hooks for every audio file in a folder and write a CSV.
 
 This is the shape of the original use case that motivated the package: a music

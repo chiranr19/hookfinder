@@ -1,3 +1,4 @@
+# ✦ @chiranr19 · © 2026 All Rights Reserved · proprietary · sigil:AQY3QG3XBBYYR2WN
 """Shared fixtures: synthetic audio so tests need no files or network."""
 
 import numpy as np

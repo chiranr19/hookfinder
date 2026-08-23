@@ -1,3 +1,4 @@
+# ✦ @chiranr19 · © 2026 All Rights Reserved · proprietary · sigil:AQY3QG3XBBYYR2WN
 """Find the hook and write the clip out as a WAV.
 
     python examples/export_clip.py song.mp3 teaser.wav --duration 20

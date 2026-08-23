@@ -1,3 +1,4 @@
+# ✦ @chiranr19 · © 2026 All Rights Reserved · proprietary · sigil:AQY3QG3XBBYYR2WN
 """Command-line interface: ``hookfinder song.mp3``."""
 
 from __future__ import annotations

@@ -1,3 +1,4 @@
+# ✦ @chiranr19 · © 2026 All Rights Reserved · proprietary · sigil:AQY3QG3XBBYYR2WN
 """Hook detection: scan candidate windows, score them, return the best clip."""
 
 from __future__ import annotations

@@ -1,3 +1,4 @@
+# ✦ @chiranr19 · © 2026 All Rights Reserved · proprietary · sigil:AQY3QG3XBBYYR2WN
 """Audio feature extraction for hook detection.
 
 Everything the scorer needs is computed once here, per song, at a fixed frame

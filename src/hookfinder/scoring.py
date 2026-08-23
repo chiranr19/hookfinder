@@ -1,3 +1,4 @@
+# ✦ @chiranr19 · © 2026 All Rights Reserved · proprietary · sigil:AQY3QG3XBBYYR2WN
 """The scoring model: five interpretable signals combined into one score.
 
 Each candidate window is measured on five signals, every one normalized to

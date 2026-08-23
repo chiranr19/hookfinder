@@ -1,3 +1,4 @@
+# ✦ @chiranr19 · © 2026 All Rights Reserved · proprietary · sigil:AQY3QG3XBBYYR2WN
 """Find the hook in a single song and print the breakdown.
 
     python examples/basic_usage.py path/to/song.mp3
