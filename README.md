@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/chiranr19/hookfinder/actions/workflows/ci.yml/badge.svg)](https://github.com/chiranr19/hookfinder/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.9%E2%80%933.12-blue)](https://github.com/chiranr19/hookfinder)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![License: proprietary](https://img.shields.io/badge/license-proprietary-F6465D)](LICENSE)
 
 **Find the 30 seconds that hook you.** An explainable, dependency-light Python
 package that locates the most memorable segment of a song — the chorus, the
@@ -192,4 +192,4 @@ pytest
 
 ## License
 
-MIT © Chiranjeev. See [LICENSE](LICENSE).
+**Proprietary — All Rights Reserved.** Source-available for viewing only; not open source. No use, copy, or reuse without written permission. See [LICENSE](LICENSE).
